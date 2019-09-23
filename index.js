@@ -1,13 +1,13 @@
 const Telegraf = require('telegraf');
 const commandParts = require('telegraf-command-parts');
+const fs = require('fs');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
 
 const config = require('./config');
-
-const queues = {};
+const queues = require('./db') || {};
 
 const app = new Telegraf(config.token);
 
@@ -35,6 +35,23 @@ function auth(ctx) {
   return false;
 }
 
+function saveChanges() {
+  return new Promise((res, rej) => fs.writeFile(
+    config.dbPath,
+    JSON.stringify(queues),
+    (err) => {
+      if (err) {
+        console.error(err);
+        rej();
+      }
+
+      console.log('Changes saved');
+
+      res();
+    },
+  ));
+}
+
 app.use(commandParts());
 
 app.catch((err) => {
@@ -47,6 +64,8 @@ app.help((ctx) => ctx.reply('/q - Показать все актуальные �
   '/del {name} - Удалить очередь пидоров с именем {name}\n' +
   '/users - Показать всех пользователей-пидоров\n',
 ));
+
+app.start(auth);
 
 app.command('q', ctx => {
   let name = ctx.contextState.command.splitArgs[0];
@@ -61,12 +80,14 @@ app.command('q', ctx => {
     Object.keys(queues).forEach(key => {
       response += '\n- ' + key;
     });
+
+    response += '\n\nЧтобы посмотреть определенную очередь используйте команду:\n/q НАЗВАНИЕ';
   }
 
   return ctx.reply(response);
 });
 
-app.command('new', ctx => {
+app.command('new', async ctx => {
   if (!auth(ctx)) {
     return;
   }
@@ -80,11 +101,11 @@ app.command('new', ctx => {
   const users = shuffleArray(config.users);
 
   queues[name] = users;
-
-  return ctx.reply(`Очередь создана с именем '${name}'\n` + printUsers(users));
+  await saveChanges();
+  await ctx.reply(`Очередь создана с именем '${name}'\n` + printUsers(users));
 });
 
-app.command('del', ctx => {
+app.command('del', async ctx => {
   if (!auth(ctx)) {
     return;
   }
@@ -97,7 +118,8 @@ app.command('del', ctx => {
 
   delete queues[name];
 
-  return ctx.reply(`Очередь с именем '${name}' удалена`);
+  await saveChanges();
+  await ctx.reply(`Очередь с именем '${name}' удалена`);
 });
 
 app.command('users', ctx => {
@@ -108,4 +130,4 @@ app.command('users', ctx => {
   return ctx.reply(response);
 });
 
-app.launch().then(() => 'Bot launched');
+app.launch();
