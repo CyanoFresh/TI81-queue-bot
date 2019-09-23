@@ -41,19 +41,27 @@ app.catch((err) => {
   console.error('Ooops', err);
 });
 
-app.help((ctx) => ctx.reply('/q - Показать все актуальные очереди\n' +
-  '/q {name} - Показать всю очередь по имени {name}\n' +
-  '/new {name} - Создать новую очередь с именем {name}\n' +
-  '/del {name} - Удалить очередь с именем {name}\n' +
-  '/users - Показать всех пользователей\n',
+app.help((ctx) => ctx.reply('/q - Показать все актуальные очереди пидоров\n' +
+  '/q {name} - Показать всю очередь пидоров по имени {name}\n' +
+  '/new {name} - Создать новую очередь пидоров с именем {name}\n' +
+  '/del {name} - Удалить очередь пидоров с именем {name}\n' +
+  '/users - Показать всех пользователей-пидоров\n',
 ));
 
 app.command('q', ctx => {
-  let response = 'Очереди:\n';
+  let name = ctx.contextState.command.splitArgs[0];
+  let response = '';
 
-  Object.keys(queues).forEach(key => {
-    response += '\n- ' + key;
-  });
+  if (name && queues[name]) {
+    response += `Очередь '${name}':\n`;
+    response += printUsers(queues[name]);
+  } else {
+    response += 'Очереди:\n';
+
+    Object.keys(queues).forEach(key => {
+      response += '\n- ' + key;
+    });
+  }
 
   return ctx.reply(response);
 });
@@ -66,7 +74,7 @@ app.command('new', ctx => {
   let name = ctx.contextState.command.splitArgs[0];
 
   if (!name) {
-    return ctx.reply('Введите название очереди через пробел после команды');
+    return ctx.reply('Введите название очереди через проебл после команды');
   }
 
   const users = shuffleArray(config.users);
@@ -84,7 +92,7 @@ app.command('del', ctx => {
   let name = ctx.contextState.command.splitArgs[0];
 
   if (!name) {
-    return ctx.reply('Введите название очереди через пробел после команды');
+    return ctx.reply('Введите название очереди через проебл после команды');
   }
 
   delete queues[name];
@@ -93,11 +101,11 @@ app.command('del', ctx => {
 });
 
 app.command('users', ctx => {
-  let response = `Все пользователи:\n`;
+  let response = `Все пидоры:\n`;
 
   response += printUsers(config.users);
 
   return ctx.reply(response);
 });
 
-app.launch();
+app.launch().then(() => 'Bot launched');
