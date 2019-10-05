@@ -69,7 +69,7 @@ let params;
 if (config.webhooks.enabled) {
   params = {
     webhook: {
-      host: config.webhooks.domain,
+      domain: config.webhooks.domain,
       port: config.webhooks.port,
       tlsOptions: null,
     }
