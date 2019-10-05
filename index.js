@@ -6,23 +6,25 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const config = require('./config');
-const { stickers, auth, saveQueues, stringifyUserList, shuffleArray } = require('./functions');
-const queues = require('./db') || {};
+const { namesReplyMiddleware, authMiddleware, ignoreMiddleware } = require('./middlewares');
+const { loadQueues, saveQueues, stringifyUserList, shuffleArray } = require('./functions');
+
+const queues = loadQueues();
 
 const app = new Telegraf(config.token);
 
 app.use(commandParts());
-app.use(stickers);
+app.use(namesReplyMiddleware);
 
 app.catch(err => console.error('Error caught:', err));
 
-app.help(ctx => ctx.reply(`/q - Показать все актуальные очереди пидоров
+app.help(ignoreMiddleware, ctx => ctx.reply(`/q - Показать все актуальные очереди пидоров
 /q {name} - Показать всю очередь пидоров по имени {name}
 /new {name} - Создать новую очередь пидоров с именем {name}
 /del {name} - Удалить очередь пидоров с именем {name}
 /users - Показать всех пользователей-пидоров`));
 
-app.command('q', ctx => {
+app.command('q', ignoreMiddleware, ctx => {
   const name = ctx.contextState.command.splitArgs[0];
 
   if (name && queues[name]) {
@@ -34,9 +36,7 @@ app.command('q', ctx => {
   return ctx.reply(`Очереди:\n${queuesList}\n\nЧтобы посмотреть определенную очередь:\n/q НАЗВАНИЕ`);
 });
 
-app.command('new', async ctx => {
-  if (!auth(ctx)) return;
-
+app.command('new', authMiddleware, async ctx => {
   let name = ctx.contextState.command.splitArgs[0];
 
   if (!name) {
@@ -50,9 +50,7 @@ app.command('new', async ctx => {
   await ctx.reply(`Очередь создана с именем '${name}'\n${stringifyUserList(shuffledUsers)}`);
 });
 
-app.command('del', async ctx => {
-  if (!auth(ctx)) return;
-
+app.command('del', authMiddleware, async ctx => {
   let name = ctx.contextState.command.splitArgs[0];
 
   if (!name) {
@@ -64,6 +62,6 @@ app.command('del', async ctx => {
   await ctx.reply(`Очередь с именем '${name}' удалена`);
 });
 
-app.command('users', ctx => ctx.reply(`Все пидоры:\n${stringifyUserList(config.users)}`));
+app.command('users', ignoreMiddleware, ctx => ctx.reply(`Все пидоры:\n${stringifyUserList(config.users)}`));
 
 app.launch();

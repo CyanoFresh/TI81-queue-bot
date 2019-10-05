@@ -19,41 +19,37 @@ module.exports.shuffleArray = sourceArray => {
 
 module.exports.stringifyUserList = users => users.reduce((result, user, index) => result + `\n${index + 1}. ${user}`, '');
 
-module.exports.auth = ctx => {
-  if (ctx.message && ctx.message.from.id) {
-    const userChatId = ctx.message.from.id.toString();
-    return config.admin_chatids.includes(userChatId);
+module.exports.loadQueues = () => {
+  let queues = {};
+
+  try {
+    const loadedString = fs.readFileSync(config.dbPath, { encoding: 'utf8', flag: 'r' });
+
+    queues = JSON.parse(loadedString);
+
+    console.log(`Loaded ${Object.keys(queues).length} queues from '${config.dbPath}'`);
+  } catch (e) {
+    console.log(`Creating new file '${config.dbPath}'...`);
+
+    this.saveQueues(queues);
   }
 
-  return false;
+  return queues;
 };
 
-module.exports.saveQueues = data => new Promise((res, rej) => fs.writeFile(config.dbPath, JSON.stringify(data), err => {
+module.exports.saveQueues = queues => new Promise((res, rej) => fs.writeFile(config.dbPath, JSON.stringify(queues), err => {
   if (err) {
-    console.error('Save error:', err);
+    console.error('Queues save error', err);
     return rej();
   }
 
-  console.log('Changes saved to DB');
+  console.log(`${Object.keys(queues).length} queues saved to disk`);
 
   return res();
 }));
 
-module.exports.stickers = (ctx, next) => {
-  let name = ctx.contextState.command && ctx.contextState.command.splitArgs[0];
-
-  if (!name) return next();
-
-  name = name.toLowerCase();
-
-  const stickerName = Object.keys(config.stickers).find(triggerWord => name.includes(triggerWord));
-
-  if (!stickerName) return next();
-
-  const stickers = config.stickers[stickerName];
-  const sticker = this.shuffleArray(stickers)[0];
-
-  ctx.replyWithSticker(sticker);
-
-  return next();
-};
+/**
+ * @param {number} percents chance from 0 to 100
+ * @returns {boolean}
+ */
+module.exports.testChance = percents => Math.random() * 100 < percents;
