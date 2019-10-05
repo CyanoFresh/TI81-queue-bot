@@ -64,4 +64,16 @@ app.command('del', authMiddleware, async ctx => {
 
 app.command('users', ignoreMiddleware, ctx => ctx.reply(`Все пидоры:\n${stringifyUserList(config.users)}`));
 
-app.launch();
+let params;
+
+if (config.webhooks.enabled) {
+  params = {
+    webhook: {
+      host: config.webhooks.domain,
+      port: config.webhooks.port,
+      tlsOptions: null,
+    }
+  };
+}
+
+app.launch(params).then(() => console.log('Server started'));
