@@ -4,6 +4,10 @@ module.exports = {
   users: require('./users'),
   dbPath: process.env.DB_FILE_PATH || './db.json',
   ignoreChance: 28,
+  webhook: {
+    port: process.env.WEBHOOKS_PORT,
+    domain: process.env.WEBHOOKS_DOMAIN,
+  },
   stickers: {
     'java': [
       'CAADAgADDwMAAl1_ZhzKP7488INhIxYE',
