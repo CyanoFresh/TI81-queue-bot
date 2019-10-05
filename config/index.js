@@ -3,7 +3,7 @@ module.exports = {
   admin_chatids: process.env.ADMIN_CHATIDS.split(','),
   users: require('./users'),
   dbPath: process.env.DB_FILE_PATH || './db.json',
-  ignoreChance: 28,
+  ignoreChance: 20,
   webhook: {
     port: process.env.WEBHOOKS_PORT,
     domain: process.env.WEBHOOKS_DOMAIN,
