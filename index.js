@@ -66,13 +66,9 @@ app.command('users', ignoreMiddleware, ctx => ctx.reply(`Все пидоры:\n$
 
 let params;
 
-if (config.webhooks.enabled) {
+if (Boolean(config.webhook.domain)) {
   params = {
-    webhook: {
-      domain: config.webhooks.domain,
-      port: config.webhooks.port,
-      tlsOptions: null,
-    }
+    webhook: config.webhook,
   };
 }
 
