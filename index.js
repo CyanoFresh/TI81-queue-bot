@@ -6,7 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const config = require('./config');
-const { namesReplyMiddleware, authMiddleware, ignoreMiddleware } = require('./middlewares');
+const { nameStickerMiddleware, authMiddleware, ignoreMiddleware } = require('./middlewares');
 const { loadQueues, saveQueues, stringifyUserList, shuffleArray } = require('./functions');
 
 const queues = loadQueues();
@@ -14,7 +14,7 @@ const queues = loadQueues();
 const app = new Telegraf(config.token);
 
 app.use(commandParts());
-app.use(namesReplyMiddleware);
+app.use(nameStickerMiddleware);
 
 app.catch(err => console.error('Error caught:', err));
 

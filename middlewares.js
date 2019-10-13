@@ -2,7 +2,9 @@ const config = require('./config');
 const { shuffleArray } = require('./functions');
 const { testChance } = require('./functions');
 
-module.exports.namesReplyMiddleware = (ctx, next) => {
+module.exports.nameStickerMiddleware = (ctx, next) => {
+  if (!config.enableStickers) return next();
+
   let name = ctx.contextState.command && ctx.contextState.command.splitArgs[0];
 
   if (!name) return next();
