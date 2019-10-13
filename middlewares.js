@@ -4,6 +4,7 @@ const { testChance } = require('./functions');
 
 module.exports.nameStickerMiddleware = (ctx, next) => {
   if (!config.enableStickers) return next();
+  if (!testChance(config.stickersChance)) return next();
 
   let name = ctx.contextState.command && ctx.contextState.command.splitArgs[0];
 
@@ -24,13 +25,11 @@ module.exports.nameStickerMiddleware = (ctx, next) => {
 };
 
 module.exports.ignoreMiddleware = (ctx, next) => {
-  if (testChance(config.ignoreChance)) {
-    const sticker = shuffleArray(config.stickers.ignore)[0];
+  if (!testChance(config.ignoreChance)) return next();
 
-    return ctx.replyWithSticker(sticker);
-  }
+  const sticker = shuffleArray(config.stickers.ignore)[0];
 
-  return next();
+  return ctx.replyWithSticker(sticker);
 };
 
 module.exports.authMiddleware = (ctx, next) => {
