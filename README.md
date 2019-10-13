@@ -12,8 +12,8 @@ By Alex Solomaha ([@CyanoFresh](https://t.me/cyanofresh))
 - [x] Stickers - reply with stickers (triggered by name or random) for fun (java = держи жабу)
 - [x] Persistence - save and load queues from json database file
 - [x] WebHooks - CPU and network optimizations
+- [x] /done command for users
 - [ ] User list corresponds to chat (not only TI-81 students list can be used)
-- [ ] /done command for users
 
 ### Installation
 

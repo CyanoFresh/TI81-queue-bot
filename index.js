@@ -22,6 +22,8 @@ app.help(ignoreMiddleware, ctx => ctx.reply(`/q - Показать все акт
 /q {name} - Показать всю очередь пидоров по имени {name}
 /new {name} - Создать новую очередь пидоров с именем {name}
 /del {name} - Удалить очередь пидоров с именем {name}
+/done {name} ФАМИЛИЯ - Отметить место пользователя в очереди {name} как выполненное
+/undone {name} ФАМИЛИЯ - Отметить место пользователя в очереди {name} как невыполненное
 /users - Показать всех пользователей-пидоров`));
 
 app.command('q', ignoreMiddleware, ctx => {
@@ -37,7 +39,7 @@ app.command('q', ignoreMiddleware, ctx => {
 });
 
 app.command('new', authMiddleware, async ctx => {
-  let name = ctx.contextState.command.splitArgs[0];
+  const name = ctx.contextState.command.splitArgs[0];
 
   if (!name) {
     return ctx.reply('Введи название очереди через проебл после команды');
@@ -51,7 +53,7 @@ app.command('new', authMiddleware, async ctx => {
 });
 
 app.command('del', authMiddleware, async ctx => {
-  let name = ctx.contextState.command.splitArgs[0];
+  const name = ctx.contextState.command.splitArgs[0];
 
   if (!name) {
     return ctx.reply('Введи название очереди через проебл после команды');
@@ -60,6 +62,60 @@ app.command('del', authMiddleware, async ctx => {
   delete queues[name];
   await saveQueues(queues);
   await ctx.reply(`Очередь с именем '${name}' удалена`);
+});
+
+app.command('done', async ctx => {
+  const queueName = ctx.contextState.command.splitArgs[0];
+  const userName = ctx.contextState.command.splitArgs[1];
+
+  if (!queueName || !userName) {
+    return ctx.reply('Неправильный формат команды. Используйте:\n/done {имя очереди} {фамилия}');
+  }
+
+  if (!queues[queueName]) {
+    return ctx.reply(`Очередь с именем '${queueName}' не найдена`);
+  }
+
+  for (let i = 0; i < queues[queueName].length; i++) {
+    const currentUser = queues[queueName][i];
+
+    if (currentUser.toLowerCase().includes(userName.toLowerCase())) {
+      queues[queueName][i] = currentUser + '  ‍🌈';
+
+      await saveQueues(queues);
+
+      return ctx.reply(`Отмечен пользователь '${currentUser}' из очереди '${queueName}'`);
+    }
+  }
+
+  return ctx.reply(`Пользователь '${userName}' не найден`);
+});
+
+app.command('undone', async ctx => {
+  const queueName = ctx.contextState.command.splitArgs[0];
+  const userName = ctx.contextState.command.splitArgs[1];
+
+  if (!queueName || !userName) {
+    return ctx.reply('Неправильный формат команды. Используйте:\n/done {имя очереди} {фамилия}');
+  }
+
+  if (!queues[queueName]) {
+    return ctx.reply(`Очередь с именем '${queueName}' не найдена`);
+  }
+
+  for (let i = 0; i < queues[queueName].length; i++) {
+    let currentUser = queues[queueName][i];
+
+    if (currentUser.toLowerCase().includes(userName.toLowerCase())) {
+      queues[queueName][i] = currentUser.slice(0, currentUser.length - 3);
+
+      await saveQueues(queues);
+
+      return ctx.reply(`Отмечен пользователь '${queues[queueName][i]}' из очереди '${queueName}'`);
+    }
+  }
+
+  return ctx.reply(`Пользователь '${userName}' не найден`);
 });
 
 app.command('users', ignoreMiddleware, ctx => ctx.reply(`Все пидоры:\n${stringifyUserList(config.users)}`));
