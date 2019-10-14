@@ -87,11 +87,15 @@ app.command('done', async ctx => {
     const currentUser = queues[queueName][i];
 
     if (currentUser.toLowerCase().includes(userName.toLowerCase())) {
-      queues[queueName][i] = currentUser + '  ‍🌈';
+      if (currentUser.includes(config.doneAppendStr)) {
+        return ctx.replyWithMarkdown(`*${currentUser}* уже отмечен в *${queueName}*`);
+      }
+
+      queues[queueName][i] = currentUser + config.doneAppendStr;
 
       await saveQueues(queues);
 
-      return ctx.replyWithMarkdown(`Отмечен пользователь *${currentUser}* из очереди *${queueName}*`);
+      return ctx.replyWithMarkdown(`Отмечен *${currentUser}* в *${queueName}*`);
     }
   }
 
@@ -114,11 +118,15 @@ app.command('undone', async ctx => {
     let currentUser = queues[queueName][i];
 
     if (currentUser.toLowerCase().includes(userName.toLowerCase())) {
-      queues[queueName][i] = currentUser.slice(0, currentUser.length - 3);
+      if (!currentUser.includes(config.doneAppendStr)) {
+        return ctx.replyWithMarkdown(`*${currentUser}* еще не отмечен в *${queueName}*`);
+      }
+
+      queues[queueName][i] = currentUser.replace(config.doneAppendStr, '');
 
       await saveQueues(queues);
 
-      return ctx.replyWithMarkdown(`Отмечен пользователь *${queues[queueName][i]}* из очереди *${queueName}*`);
+      return ctx.replyWithMarkdown(`*${queues[queueName][i]}* больше не отмечен в *${queueName}*`);
     }
   }
 

@@ -5,6 +5,7 @@ module.exports = {
   dbPath: process.env.DB_FILE_PATH || './db.json',
   ignoreChance: 9,
   enableStickers: true,
+  doneAppendStr: '  ‍🌈',
   stickersChance: 40,
   buttonsInRow: 4,
   webhook: {
