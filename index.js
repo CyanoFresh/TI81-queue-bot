@@ -1,5 +1,7 @@
 const Telegraf = require('telegraf');
 const commandParts = require('telegraf-command-parts');
+const Extra = require('telegraf/extra');
+const Markup = require('telegraf/markup');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -18,24 +20,29 @@ app.use(nameStickerMiddleware);
 
 app.catch(err => console.error('Error caught:', err));
 
-app.help(ignoreMiddleware, ctx => ctx.reply(`/q - Показать все актуальные очереди пидоров
-/q {name} - Показать всю очередь пидоров по имени {name}
+app.help(ignoreMiddleware, ctx => ctx.reply(`/q - Показать доступные очереди пидоров
 /new {name} - Создать новую очередь пидоров с именем {name}
 /del {name} - Удалить очередь пидоров с именем {name}
 /done {name} ФАМИЛИЯ - Отметить место пользователя в очереди {name} как выполненное
 /undone {name} ФАМИЛИЯ - Отметить место пользователя в очереди {name} как невыполненное
 /users - Показать всех пользователей-пидоров`));
 
-app.command('q', ignoreMiddleware, ctx => {
-  const name = ctx.contextState.command.splitArgs[0];
+const renderQueue = name => queues[name] ? `Очередь *${name}*\n${stringifyUserList(queues[name])}` : `Очередь '${name}' не найдена`;
 
-  if (name && queues[name]) {
-    return ctx.reply(`Очередь '${name}':\n${stringifyUserList(queues[name])}`);
-  }
+/**
+ * @returns {CallbackButton[]}
+ */
+const getButtons = () => Object.keys(queues).map(queue => Markup.callbackButton(queue, `q_${queue}`));
 
-  const queuesList = Object.keys(queues).reduce((result, queue) => result + `\n- ${queue}`, '');
+app.command('q', ctx => ctx.reply(
+  'Выбери очередь из списка:',
+  Markup.inlineKeyboard(getButtons(), { columns: config.buttonsInRow }).extra(),
+));
 
-  return ctx.reply(`Очереди:\n${queuesList}\n\nЧтобы посмотреть определенную очередь:\n/q НАЗВАНИЕ`);
+app.action(/q_(\w+)/, async ctx => {
+  const name = ctx.match[1];
+  await ctx.answerCbQuery();
+  await ctx.editMessageText(renderQueue(name), Extra.markdown());
 });
 
 app.command('new', authMiddleware, async ctx => {
@@ -45,11 +52,10 @@ app.command('new', authMiddleware, async ctx => {
     return ctx.reply('Введи название очереди через проебл после команды');
   }
 
-  const shuffledUsers = shuffleArray(config.users);
+  queues[name] = shuffleArray(config.users);
 
-  queues[name] = shuffledUsers;
   await saveQueues(queues);
-  await ctx.reply(`Очередь создана с именем '${name}'\n${stringifyUserList(shuffledUsers)}`);
+  await ctx.replyWithMarkdown(renderQueue(name));
 });
 
 app.command('del', authMiddleware, async ctx => {
@@ -60,8 +66,9 @@ app.command('del', authMiddleware, async ctx => {
   }
 
   delete queues[name];
+
   await saveQueues(queues);
-  await ctx.reply(`Очередь с именем '${name}' удалена`);
+  await ctx.replyWithMarkdown(`Очередь *${name}* удалена`);
 });
 
 app.command('done', async ctx => {
@@ -69,7 +76,7 @@ app.command('done', async ctx => {
   const userName = ctx.contextState.command.splitArgs[1];
 
   if (!queueName || !userName) {
-    return ctx.reply('Неправильный формат команды. Используйте:\n/done {имя очереди} {фамилия}');
+    return ctx.reply('Неправильный формат команды. Используйте:\n/done {очердь} {фамилия}');
   }
 
   if (!queues[queueName]) {
@@ -84,7 +91,7 @@ app.command('done', async ctx => {
 
       await saveQueues(queues);
 
-      return ctx.reply(`Отмечен пользователь '${currentUser}' из очереди '${queueName}'`);
+      return ctx.replyWithMarkdown(`Отмечен пользователь *${currentUser}* из очереди *${queueName}*`);
     }
   }
 
@@ -96,7 +103,7 @@ app.command('undone', async ctx => {
   const userName = ctx.contextState.command.splitArgs[1];
 
   if (!queueName || !userName) {
-    return ctx.reply('Неправильный формат команды. Используйте:\n/done {имя очереди} {фамилия}');
+    return ctx.reply('Неправильный формат команды. Используйте:\n/undone {очередь} {фамилия}');
   }
 
   if (!queues[queueName]) {
@@ -111,7 +118,7 @@ app.command('undone', async ctx => {
 
       await saveQueues(queues);
 
-      return ctx.reply(`Отмечен пользователь '${queues[queueName][i]}' из очереди '${queueName}'`);
+      return ctx.replyWithMarkdown(`Отмечен пользователь *${queues[queueName][i]}* из очереди *${queueName}*`);
     }
   }
 
@@ -128,4 +135,4 @@ if (Boolean(config.webhook.domain)) {
   };
 }
 
-app.launch(params).then(() => console.log('Server started'));
+app.launch(params).then(() => console.log('Telegram Bot started'));
