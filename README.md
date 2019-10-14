@@ -14,6 +14,7 @@ By Alex Solomaha ([@CyanoFresh](https://t.me/cyanofresh))
 - [x] WebHooks - CPU and network optimizations
 - [x] /done command for users
 - [ ] User list corresponds to chat (not only TI-81 students list can be used)
+- [ ] Use Telegram's buttons for navigation
 
 ### Installation
 
