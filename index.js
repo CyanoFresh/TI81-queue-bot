@@ -1,7 +1,7 @@
 const Telegraf = require('telegraf');
-const commandParts = require('telegraf-command-parts');
 const Extra = require('telegraf/extra');
 const Markup = require('telegraf/markup');
+const commandParts = require('telegraf-command-parts');
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -33,6 +33,8 @@ const renderQueue = name => queues[name] ? `Очередь *${name}*\n${stringif
  * @returns {CallbackButton[]}
  */
 const getButtons = () => Object.keys(queues).map(queue => Markup.callbackButton(queue, `q_${queue}`));
+
+app.hears(/\/q\s(\w+)/, async ctx => ctx.replyWithMarkdown(renderQueue(ctx.match[1])));
 
 app.command('q', ctx => ctx.reply(
   'Выбери очередь из списка:',
