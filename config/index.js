@@ -7,7 +7,7 @@ module.exports = {
   enableStickers: true,
   doneAppendStr: '  ‍🌈',
   stickersChance: 40,
-  buttonsInRow: 4,
+  buttonsInRow: 3,
   webhook: {
     port: process.env.WEBHOOKS_PORT,
     domain: process.env.WEBHOOKS_DOMAIN,  // leave empty to disable
