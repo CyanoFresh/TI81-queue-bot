@@ -15,9 +15,8 @@ Feel free to contribute :)
 - [x] Persistence - save and load queues from json database file
 - [x] WebHooks - CPU and network optimizations
 - [x] /done command for users
-- [ ] Commands-links to the queue
+- [x] Use Telegram's inline buttons for navigation
 - [ ] User list corresponds to chat (not only TI-81 students list can be used)
-- [ ] Use Telegram's buttons for navigation
 
 ## Installation
 
