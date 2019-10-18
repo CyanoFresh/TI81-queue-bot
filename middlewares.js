@@ -24,14 +24,6 @@ module.exports.nameStickerMiddleware = (ctx, next) => {
   return next();
 };
 
-module.exports.ignoreMiddleware = (ctx, next) => {
-  if (!testChance(config.ignoreChance)) return next();
-
-  const sticker = shuffleArray(config.stickers.ignore)[0];
-
-  return ctx.replyWithSticker(sticker);
-};
-
 module.exports.authMiddleware = (ctx, next) => {
   if (ctx.message && ctx.message.from.id) {
     const userChatId = ctx.message.from.id.toString();

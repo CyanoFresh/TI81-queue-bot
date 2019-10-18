@@ -53,3 +53,48 @@ module.exports.saveQueues = queues => new Promise((res, rej) => fs.writeFile(con
  * @returns {boolean}
  */
 module.exports.testChance = percents => Math.random() * 100 < percents;
+
+/**
+ * Mark user as done or undone in queue.
+ * @param {Object} queue
+ * @param {string} user
+ * @param {boolean} isDone
+ * @returns {Object} Updated queue
+ */
+module.exports.markUserInQueue = async (queue, user, isDone = true) => {
+  const updatedQueue = [...queue];
+
+  for (let i = 0; i < updatedQueue.length; i++) {
+    const currentUser = updatedQueue[i];
+
+    if (currentUser.includes(user)) {
+      const isMarked = currentUser[0] === '*';
+
+      if (!isDone && !isMarked) {
+        const error = new Error(`*${currentUser}* еще не отмечен`);
+        error.code = 400;
+        throw error;
+      }
+
+      if (isDone && isMarked) {
+        const error = new Error(`*${currentUser}* уже был отмечен`);
+        error.code = 400;
+        throw error;
+      }
+
+      if (isDone) {
+        updatedQueue[i] = `*${currentUser}${config.doneAppendStr}*`;
+      } else {
+        updatedQueue[i] = currentUser
+          .replace(config.doneAppendStr, '')
+          .replace(/\*/g, '');  // remove '*'s
+      }
+
+      return updatedQueue;
+    }
+  }
+
+  const error = new Error('чето хуйня произошла какая то, хз че делать');
+  error.code = 404;
+  throw error;
+};
