@@ -95,7 +95,7 @@ app.action(/^done_(\w+)$/, async ctx => {
     await saveQueues(queues);
 
     await ctx.answerCbQuery();
-    await ctx.editMessageText(renderQueue(name, queues[name].indexOf(user)), Extra.markdown());
+    await ctx.editMessageText(renderQueue(name, queues[name].findIndex(u => u.includes(user))), Extra.markdown());
   } catch (e) {
     await ctx.answerCbQuery('Ошибка');
     await ctx.editMessageText(e.message, Extra.markdown());
@@ -122,7 +122,7 @@ app.action(/^undone_(\w+)$/, async ctx => {
     await saveQueues(queues);
 
     await ctx.answerCbQuery();
-    await ctx.editMessageText(renderQueue(name, queues[name].indexOf(user)), Extra.markdown());
+    await ctx.editMessageText(renderQueue(name, queues[name].findIndex(u => u.includes(user))), Extra.markdown());
   } catch (e) {
     await ctx.answerCbQuery('Ошибка');
     await ctx.editMessageText(e.message, Extra.markdown());
