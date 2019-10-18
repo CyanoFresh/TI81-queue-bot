@@ -27,7 +27,7 @@ app.help(ctx => ctx.reply(`/q - Показать доступные очеред
 /undone - Отметить пользователя в очереди как невыполненного
 /users - Показать всех пользователей-пидоров`));
 
-const renderQueue = name => queues[name] ? `Очередь *${name}*\n${stringifyUserList(queues[name])}` : `Очередь '${name}' не найдена`;
+const renderQueue = (name, center) => queues[name] ? `Очередь *${name}*\n${stringifyUserList(queues[name], center)}` : `Очередь '${name}' не найдена`;
 
 const renderNamesButtons = action => Markup.inlineKeyboard(
   Object.keys(queues).map(queue => Markup.callbackButton(queue, `${action}_${queue}`)),
@@ -95,7 +95,7 @@ app.action(/^done_(\w+)$/, async ctx => {
     await saveQueues(queues);
 
     await ctx.answerCbQuery();
-    await ctx.editMessageText(`*${user}* отмечен в *${name}*`, Extra.markdown());
+    await ctx.editMessageText(renderQueue(name, queues[name].indexOf(user)), Extra.markdown());
   } catch (e) {
     await ctx.answerCbQuery('Ошибка');
     await ctx.editMessageText(e.message, Extra.markdown());
@@ -122,7 +122,7 @@ app.action(/^undone_(\w+)$/, async ctx => {
     await saveQueues(queues);
 
     await ctx.answerCbQuery();
-    await ctx.editMessageText(`*${user}* больше не отмечен в *${name}*`, Extra.markdown());
+    await ctx.editMessageText(renderQueue(name, queues[name].indexOf(user)), Extra.markdown());
   } catch (e) {
     await ctx.answerCbQuery('Ошибка');
     await ctx.editMessageText(e.message, Extra.markdown());

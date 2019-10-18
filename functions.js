@@ -17,7 +17,15 @@ module.exports.shuffleArray = sourceArray => {
   return array;
 };
 
-module.exports.stringifyUserList = users => users.reduce((result, user, index) => result + `\n${index + 1}. ${user}`, '');
+module.exports.stringifyUserList = (users, center) => {
+  return users.reduce((result, user, index) => {
+    if (center && (index < center - 2 || index > center + 2)) {
+      return result;
+    }
+
+    return result + `\n${index + 1}. ${user}`
+  }, '')
+};
 
 module.exports.loadQueues = () => {
   let queues = {};
