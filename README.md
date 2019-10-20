@@ -3,6 +3,8 @@ Telegram Queue Bot
 
 Telegram Bot for creating randomized queue from students list from group TI-81
 
+You can find bot here: [@ti81_queue_bot](https://t.me/ti81_queue_bot)
+
 By Alex Solomaha ([@CyanoFresh](https://t.me/cyanofresh))
 
 Feel free to contribute :)
@@ -10,13 +12,18 @@ Feel free to contribute :)
 ## Features
 
 - [x] Randomized Queue
-- [x] Authorization - only specified chat_ids can manage queues
-- [x] Stickers - reply with stickers (triggered by name or random) for fun (java = держи жабу)
 - [x] Persistence - save and load queues from json database file
-- [x] WebHooks - CPU and network optimizations
+- [x] Stickers - reply with stickers (triggered by name or random) for fun (java = держи жабу)
+- [x] Authentication by chat_id for admin and users commands
+- [x] Telegram WebHooks - CPU and network optimization
 - [x] /done command for users
 - [x] Use Telegram's inline buttons for navigation
-- [ ] User list corresponds to chat (not only TI-81 students list can be used)
+- [ ] Better architecture - separate index.js into smaller files
+- [ ] Use `telegraf/micro` for lambda-like services
+- [ ] KPI rozklad parser
+- [ ] Universal students list
+
+You can help by submitting a PR
 
 ## Installation
 
