@@ -12,6 +12,7 @@ const { nameStickerMiddleware, authMiddleware } = require('./middlewares');
 const { loadQueues, saveQueues, stringifyUserList, shuffleArray, markUserInQueue } = require('./functions');
 
 const queues = loadQueues();
+const mans = {};
 
 const app = new Telegraf(config.token);
 
@@ -130,6 +131,37 @@ app.action(/^undone_(\w+)$/, async ctx => {
 });
 
 app.command('users', ctx => ctx.reply(`Все пидоры:\n${stringifyUserList(Object.values(config.users))}`));
+
+app.command('today', async ctx => {
+  let name = ctx.contextState.command.splitArgs[0];
+
+  if (!name) {
+    name = shuffleArray(config.mans)[0];
+  }
+
+  name = name.toLowerCase();
+
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+
+  const endDate = new Date();
+  endDate.setHours(0, 0, 0, 0);
+  endDate.setDate(endDate.getDate() + 1);
+
+  let user;
+
+  if (!mans[name] || mans[name].date >= endDate) {
+    user = shuffleArray(Object.entries(config.users))[0];
+    mans[name] = {
+      user,
+      date,
+    };
+  } else {
+    user = mans[name].user;
+  }
+
+  return ctx.replyWithMarkdown(`${name} дня - [${user[1]}](tg://user?id=${user[0]})`);
+});
 
 let params;
 
