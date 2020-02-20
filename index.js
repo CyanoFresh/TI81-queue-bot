@@ -139,8 +139,6 @@ app.command('today', async ctx => {
     name = shuffleArray(config.mans)[0];
   }
 
-  name = name.toLowerCase();
-
   const date = new Date();
   date.setHours(0, 0, 0, 0);
 
@@ -160,7 +158,7 @@ app.command('today', async ctx => {
     user = mans[name].user;
   }
 
-  return ctx.replyWithMarkdown(`${name} дня - [${user[1]}](tg://user?id=${user[0]})`);
+  return ctx.replyWithMarkdown(`${name} - [${user[1]}](tg://user?id=${user[0]})`);
 });
 
 let params;

@@ -79,13 +79,13 @@ module.exports.markUserInQueue = async (queue, user, isDone = true) => {
       const isMarked = currentUser[0] === '*';
 
       if (!isDone && !isMarked) {
-        const error = new Error(`*${currentUser}* еще не отмечен`);
+        const error = new Error(`*${user}* еще не отмечен`);
         error.code = 400;
         throw error;
       }
 
       if (isDone && isMarked) {
-        const error = new Error(`*${currentUser}* уже был отмечен`);
+        const error = new Error(`*${user}* уже был отмечен`);
         error.code = 400;
         throw error;
       }
