@@ -142,13 +142,9 @@ app.command('today', async ctx => {
   const date = new Date();
   date.setHours(0, 0, 0, 0);
 
-  const endDate = new Date();
-  endDate.setHours(0, 0, 0, 0);
-  endDate.setDate(endDate.getDate() + 1);
-
   let user;
 
-  if (!mans[name] || mans[name].date >= endDate) {
+  if (!mans[name] || mans[name].date.toDateString() !== date.toDateString()) {
     user = shuffleArray(Object.entries(config.users))[0];
     mans[name] = {
       user,
